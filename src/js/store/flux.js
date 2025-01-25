@@ -12,7 +12,9 @@ const getState = ({ getStore, getActions, setStore }) => {
 					background: "white",
 					initial: "white"
 				}
-			]
+			],
+			nextPage: '',
+			pokemones: []
 		},
 		actions: {
 			// Use getActions to call a function within a fuction
@@ -37,7 +39,27 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 				//reset the global store
 				setStore({ demo: demo });
-			}
+			},
+
+			loadPokemons: async () => {
+				const resp = await fetch("https://pokeapi.co/api/v2/pokemon/");
+				const data = await resp.json()
+				setStore({ pokemones: data.results })
+				setStore({ nextPage: data.next })
+			},
+
+			loadMorePokemons: async () => {
+				const store = getStore()
+
+				const resp = await fetch(store.nextPage);
+				const data = await resp.json()
+
+				console.log(data)
+
+				setStore({ pokemones: [ ...store.pokemones, ...data.results ] })
+				setStore({ nextPage: data.next })
+			},
+
 		}
 	};
 };
